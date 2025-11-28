@@ -60,6 +60,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Lint job: ruff check, ruff format, mypy type checking
   - Test job: pytest on Python 3.11, 3.12, 3.13
   - Codecov integration for coverage reporting
+  - Container build on develop (validation only, no push)
+  - Container build & push to GitHub Container Registry (`ghcr.io`) on main/tags
+  - Multi-arch builds: `linux/amd64`, `linux/arm64`
+  - Automatic tagging: `latest` on main, semver on tags (v3.0.0 → 3.0.0, 3.0, 3)
 - Added `pyproject.toml` with centralized tool configuration
 - Replaced black + flake8 with ruff for linting and formatting
 - Added mypy with strict type hint enforcement (`disallow_untyped_defs`)
