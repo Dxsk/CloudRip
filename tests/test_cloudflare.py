@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from cloudrip.core.cloudflare import CloudflareIPRanges
 
 
@@ -81,7 +79,7 @@ class TestCloudflareIPRanges:
         ranges = CloudflareIPRanges()
         with patch.object(ranges, "_fetch_from_api", return_value=[]):
             # Should trigger load()
-            result = ranges.is_cloudflare_ip("104.16.1.1")
+            ranges.is_cloudflare_ip("104.16.1.1")
             assert ranges._loaded is True
 
     def test_used_fallback_property(self, cf_ranges):

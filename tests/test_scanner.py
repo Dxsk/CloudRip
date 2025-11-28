@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cloudrip.core.models import ResolveResult, ScanReport
+from cloudrip.core.models import ResolveResult
 from cloudrip.core.scanner import CloudRipScanner
 
 
@@ -38,7 +38,7 @@ class TestCloudRipScanner:
 
     def test_load_cf_ranges(self, scanner):
         """Test load_cf_ranges calls load on cf_ranges."""
-        result = scanner.load_cf_ranges()
+        scanner.load_cf_ranges()
         scanner.cf_ranges.load.assert_called_once()
 
     def test_load_wordlist(self, scanner, temp_wordlist):
@@ -100,7 +100,7 @@ class TestCloudRipScanner:
         with patch.object(
             scanner.resolver, "resolve_domain", return_value=mock_result
         ) as mock_resolve:
-            result = scanner.resolve_subdomain("www")
+            scanner.resolve_subdomain("www")
             mock_resolve.assert_called_with("www", "example.com")
 
     def test_add_result_found(self, scanner, sample_resolve_result):

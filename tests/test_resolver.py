@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, patch
 
 import dns.resolver
-import pytest
 
 from cloudrip.core.resolver import DNSResolver
 

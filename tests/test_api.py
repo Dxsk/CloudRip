@@ -6,14 +6,13 @@ import pytest
 
 from cloudrip.core.models import ResolveResult
 
-
 # Skip all tests if FastAPI not installed
 pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from cloudrip.api.app import app
 from cloudrip.api import routes
+from cloudrip.api.app import app
 from cloudrip.api.schemas import ScanStatus
 
 

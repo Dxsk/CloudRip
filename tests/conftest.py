@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cloudrip.core.cloudflare import CloudflareIPRanges
-from cloudrip.core.models import OutputFormat, ResolveResult, ScanReport
+from cloudrip.core.models import ResolveResult, ScanReport
 from cloudrip.core.resolver import DNSResolver
 from cloudrip.core.scanner import CloudRipScanner
 

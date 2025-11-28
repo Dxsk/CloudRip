@@ -2,17 +2,17 @@
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
 
 from cloudrip.api.wordlist import (
     WordlistDownloadError,
-    validate_url,
+    cleanup_temp_dir,
     download_wordlist,
     download_wordlists,
-    cleanup_temp_dir,
+    validate_url,
 )
 
 
@@ -227,7 +227,7 @@ class TestDownloadWordlists:
         """Test error when too many URLs provided."""
         with patch("cloudrip.api.wordlist.settings") as mock_settings:
             mock_settings.max_wordlist_urls = 3
-            urls = ["https://example.com/w{}.txt".format(i) for i in range(5)]
+            urls = [f"https://example.com/w{i}.txt" for i in range(5)]
             with pytest.raises(WordlistDownloadError) as exc_info:
                 download_wordlists(urls)
             assert "Too many wordlist URLs" in str(exc_info.value)

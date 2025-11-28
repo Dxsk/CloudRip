@@ -29,6 +29,7 @@ ignore = [
     "SIM105", # contextlib.suppress
     "SIM108", # ternary operator
     "SIM113", # enumerate for index
+    "SIM117", # nested with statements (useful for readability in tests)
 ]
 
 [tool.ruff.lint.isort]

@@ -1,15 +1,12 @@
 """Tests for the CLI module."""
 
-import argparse
 import signal
-import sys
-from io import StringIO
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from cloudrip.cli.main import CloudRipCLI, main, parse_arguments
 from cloudrip.core.models import OutputFormat, ResolveResult, ScanReport
-from cloudrip.cli.main import CloudRipCLI, parse_arguments, main
 
 
 class TestCloudRipCLI:
@@ -280,7 +277,7 @@ class TestCloudRipCLI:
     def test_handle_interrupt_force_quit(self, cli):
         """Test handle_interrupt with force quit."""
         cli.scanner.stop_requested = True
-        with patch("cloudrip.cli.main.tqdm") as mock_tqdm:
+        with patch("cloudrip.cli.main.tqdm"):
             with pytest.raises(SystemExit) as exc_info:
                 cli.handle_interrupt(signal.SIGINT, None)
             assert exc_info.value.code == 0
@@ -544,9 +541,8 @@ class TestParseArguments:
 
     def test_parse_missing_domain(self):
         """Test parsing without domain."""
-        with patch("sys.argv", ["cloudrip"]):
-            with pytest.raises(SystemExit):
-                parse_arguments()
+        with patch("sys.argv", ["cloudrip"]), pytest.raises(SystemExit):
+            parse_arguments()
 
 
 class TestMain:
@@ -580,32 +576,34 @@ class TestMain:
 
     def test_main_all_options(self):
         """Test main with all options."""
-        with patch(
-            "sys.argv",
-            [
-                "cloudrip",
-                "test.com",
-                "-w",
-                "words.txt",
-                "-t",
-                "20",
-                "-o",
-                "out.json",
-                "-f",
-                "json",
-                "-v",
-            ],
+        with (
+            patch(
+                "sys.argv",
+                [
+                    "cloudrip",
+                    "test.com",
+                    "-w",
+                    "words.txt",
+                    "-t",
+                    "20",
+                    "-o",
+                    "out.json",
+                    "-f",
+                    "json",
+                    "-v",
+                ],
+            ),
+            patch("cloudrip.cli.main.CloudRipCLI") as mock_cli_class,
         ):
-            with patch("cloudrip.cli.main.CloudRipCLI") as mock_cli_class:
-                mock_cli = MagicMock()
-                mock_cli_class.return_value = mock_cli
+            mock_cli = MagicMock()
+            mock_cli_class.return_value = mock_cli
 
-                main()
+            main()
 
-                call_kwargs = mock_cli_class.call_args[1]
-                assert call_kwargs["domain"] == "test.com"
-                assert call_kwargs["wordlists"] == ["words.txt"]
-                assert call_kwargs["threads"] == 20
-                assert call_kwargs["output_file"] == "out.json"
-                assert call_kwargs["output_format"] == OutputFormat.JSON
-                assert call_kwargs["verbose"] is True
+            call_kwargs = mock_cli_class.call_args[1]
+            assert call_kwargs["domain"] == "test.com"
+            assert call_kwargs["wordlists"] == ["words.txt"]
+            assert call_kwargs["threads"] == 20
+            assert call_kwargs["output_file"] == "out.json"
+            assert call_kwargs["output_format"] == OutputFormat.JSON
+            assert call_kwargs["verbose"] is True

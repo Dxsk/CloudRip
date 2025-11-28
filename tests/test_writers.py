@@ -2,9 +2,6 @@
 
 import io
 import json
-from pathlib import Path
-
-import pytest
 
 from cloudrip.core.models import OutputFormat, ResolveResult, ScanReport
 from cloudrip.output.writers import ReportWriter

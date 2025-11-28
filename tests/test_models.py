@@ -1,7 +1,5 @@
 """Tests for cloudrip.core.models."""
 
-import pytest
-
 from cloudrip.core.models import OutputFormat, ResolveResult, ScanReport
 
 
