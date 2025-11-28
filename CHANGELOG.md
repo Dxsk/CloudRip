@@ -71,6 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `docs/container.md` - Container deployment guide
 - Added `.env.example` with all configuration options
 
+### Fixed
+
+#### CI Workflow
+- Fixed ruff linting errors in test files (unused imports, unsorted imports, unused variables)
+- Added SIM117 to ignored rules (nested `with` statements for test readability)
+- Fixed mypy in CI by installing API dependencies (`requirements/api.txt`) for pydantic/fastapi type stubs
+
 ---
 
 ## [2.1.0] - 2025-11-28
