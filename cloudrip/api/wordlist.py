@@ -2,7 +2,6 @@
 
 import tempfile
 from pathlib import Path
-from typing import List, Tuple
 from urllib.parse import urlparse
 
 import requests
@@ -117,7 +116,7 @@ def download_wordlist(url: str, temp_dir: Path) -> Path:
         raise WordlistDownloadError(f"Failed to download {url}: {e}")
 
 
-def download_wordlists(urls: List[str]) -> Tuple[Path, List[Path]]:
+def download_wordlists(urls: list[str]) -> tuple[Path, list[Path]]:
     """Download multiple wordlists to a temporary directory.
 
     Args:

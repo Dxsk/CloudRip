@@ -1,9 +1,8 @@
 """Data models for CloudRip."""
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 
 
 class OutputFormat(Enum):
@@ -25,7 +24,7 @@ class ResolveResult:
     status: str = "unknown"
     ipv4_cloudflare: list[str] = field(default_factory=list)
     ipv6_cloudflare: list[str] = field(default_factory=list)
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def ipv4_non_cf(self) -> list[str]:
@@ -65,9 +64,7 @@ class ScanReport:
     """Complete scan report."""
 
     target_domain: str
-    scan_date: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    scan_date: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     total_checked: int = 0
     found: list[ResolveResult] = field(default_factory=list)
     cloudflare: list[ResolveResult] = field(default_factory=list)

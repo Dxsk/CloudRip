@@ -52,11 +52,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `docs/container.md` with deployment guide
 - Compose examples with Tor proxy integration
 
-#### Testing
-- Added comprehensive test suite with 208 unit tests (86% coverage)
+#### Testing & CI
+- Added comprehensive test suite with 208 unit tests (84% coverage)
 - Added pytest configuration with pytest-cov for coverage reporting
 - Added proxy module tests (100% coverage on proxy module)
-- Added linting with black and flake8
+- Added GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+  - Lint job: ruff check, ruff format, mypy type checking
+  - Test job: pytest on Python 3.11, 3.12, 3.13
+  - Codecov integration for coverage reporting
+- Added `pyproject.toml` with centralized tool configuration
+- Replaced black + flake8 with ruff for linting and formatting
+- Added mypy with strict type hint enforcement (`disallow_untyped_defs`)
 
 #### Documentation
 - Added `docs/cli.md` - CLI usage and examples

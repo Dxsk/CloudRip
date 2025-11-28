@@ -4,7 +4,6 @@ import socket
 import threading
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
 from urllib.parse import urlparse
 
 import socks
@@ -24,8 +23,8 @@ class ProxyConfig:
     type: ProxyType
     host: str
     port: int
-    username: Optional[str] = None
-    password: Optional[str] = None
+    username: str | None = None
+    password: str | None = None
 
     @classmethod
     def from_url(cls, url: str) -> "ProxyConfig":
@@ -77,14 +76,14 @@ class ProxyConfig:
 class ProxyManager:
     """Manages SOCKS proxies with rotation support."""
 
-    def __init__(self, proxies: Optional[List[str]] = None, rotate: bool = True):
+    def __init__(self, proxies: list[str] | None = None, rotate: bool = True):
         """Initialize proxy manager.
 
         Args:
             proxies: List of proxy URLs (socks5://host:port)
             rotate: Whether to rotate between proxies
         """
-        self._proxies: List[ProxyConfig] = []
+        self._proxies: list[ProxyConfig] = []
         self._current_index = 0
         self._lock = threading.Lock()
         self._rotate = rotate
@@ -107,7 +106,7 @@ class ProxyManager:
         """Get number of configured proxies."""
         return len(self._proxies)
 
-    def get_next_proxy(self) -> Optional[ProxyConfig]:
+    def get_next_proxy(self) -> ProxyConfig | None:
         """Get the next proxy in rotation.
 
         Returns:
@@ -154,15 +153,15 @@ class ProxyManager:
 
         proxy = self._proxies[0]
         socks.set_default_proxy(*proxy.to_tuple())
-        socket.socket = socks.socksocket
+        socket.socket = socks.socksocket  # type: ignore[misc]
 
     def deactivate_global(self) -> None:
         """Deactivate global proxy patching."""
         socks.set_default_proxy()
-        socket.socket = self._original_socket
+        socket.socket = self._original_socket  # type: ignore[misc]
 
 
-def parse_proxy_list(proxy_string: str) -> List[str]:
+def parse_proxy_list(proxy_string: str) -> list[str]:
     """Parse comma-separated proxy list.
 
     Args:

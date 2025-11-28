@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -30,7 +29,7 @@ class ScanRequest(BaseModel):
     )
     threads: int = Field(default=10, ge=1, le=100, description="Number of threads")
     include_root: bool = Field(default=True, description="Check root domain first")
-    use_proxy: Optional[bool] = Field(
+    use_proxy: bool | None = Field(
         default=None,
         description="Use SOCKS proxy (None=auto based on config)",
     )
@@ -65,7 +64,7 @@ class ResolveResultResponse(BaseModel):
     status: str
     ipv4_cloudflare: list[str] = []
     ipv6_cloudflare: list[str] = []
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def ipv4_non_cf(self) -> list[str]:
@@ -102,12 +101,12 @@ class ScanJobResponse(BaseModel):
     status: ScanStatus
     domain: str
     created_at: datetime
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     progress: int = 0
     total: int = 0
-    report: Optional[ScanReportResponse] = None
-    error: Optional[str] = None
+    report: ScanReportResponse | None = None
+    error: str | None = None
 
 
 class ScanJobListResponse(BaseModel):
@@ -123,7 +122,7 @@ class QuickScanRequest(BaseModel):
     domain: str = Field(
         ..., description="Full domain to check (e.g., mail.example.com)"
     )
-    use_proxy: Optional[bool] = Field(
+    use_proxy: bool | None = Field(
         default=None,
         description="Use SOCKS proxy (None=auto based on config)",
     )

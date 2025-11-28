@@ -2,9 +2,8 @@
 
 import asyncio
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Dict, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
@@ -31,7 +30,7 @@ from .wordlist import WordlistDownloadError, cleanup_temp_dir, download_wordlist
 router = APIRouter()
 
 # Global state for scan jobs and shared CF ranges
-_scan_jobs: Dict[str, dict] = {}
+_scan_jobs: dict[str, dict] = {}
 _cf_ranges: CloudflareIPRanges | None = None
 _proxy_manager: ProxyManager | None = None
 
@@ -54,7 +53,7 @@ def get_proxy_manager() -> ProxyManager:
     return _proxy_manager
 
 
-def should_use_proxy(use_proxy: Optional[bool]) -> bool:
+def should_use_proxy(use_proxy: bool | None) -> bool:
     """Determine if proxy should be used based on request and config.
 
     Args:
@@ -86,9 +85,9 @@ def _run_scan_job(job_id: str, request: ScanRequest) -> None:
     """Run a scan job in background."""
     job = _scan_jobs[job_id]
     job["status"] = ScanStatus.RUNNING
-    job["started_at"] = datetime.now(timezone.utc)
+    job["started_at"] = datetime.now(UTC)
 
-    temp_dir: Optional[Path] = None
+    temp_dir: Path | None = None
 
     try:
         all_wordlists = list(request.wordlists)
@@ -145,7 +144,7 @@ def _run_scan_job(job_id: str, request: ScanRequest) -> None:
         job["error"] = str(e)
 
     finally:
-        job["completed_at"] = datetime.now(timezone.utc)
+        job["completed_at"] = datetime.now(UTC)
         if temp_dir:
             cleanup_temp_dir(temp_dir)
 
@@ -177,7 +176,7 @@ async def start_scan(
     Returns a job ID that can be used to check progress and retrieve results.
     """
     job_id = str(uuid.uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     job = {
         "job_id": job_id,
@@ -197,7 +196,7 @@ async def start_scan(
     # Start scan in background
     background_tasks.add_task(_run_scan_job, job_id, request)
 
-    return ScanJobResponse(**job)
+    return ScanJobResponse(**job)  # type: ignore[arg-type]
 
 
 @router.get("/scan/{job_id}", response_model=ScanJobResponse, tags=["Scanning"])
@@ -218,7 +217,7 @@ async def cancel_scan(job_id: str) -> dict:
     job = _scan_jobs[job_id]
     if job["status"] == ScanStatus.RUNNING:
         job["status"] = ScanStatus.CANCELLED
-        job["completed_at"] = datetime.now(timezone.utc)
+        job["completed_at"] = datetime.now(UTC)
 
     return {"status": "cancelled", "job_id": job_id}
 

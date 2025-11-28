@@ -3,7 +3,6 @@
 import argparse
 import signal
 import sys
-from typing import Optional
 
 import pyfiglet
 from tqdm import tqdm
@@ -27,7 +26,7 @@ class CloudRipCLI:
         output_format: OutputFormat = OutputFormat.NORMAL,
         verbose: bool = False,
         quiet: bool = False,
-        proxy_urls: Optional[list[str]] = None,
+        proxy_urls: list[str] | None = None,
         proxy_rotate: bool = True,
     ):
         self.domain = domain
@@ -37,7 +36,7 @@ class CloudRipCLI:
         self.verbose = verbose
         self.quiet = quiet
 
-        self.proxy_manager: Optional[ProxyManager] = None
+        self.proxy_manager: ProxyManager | None = None
         if proxy_urls:
             self.proxy_manager = ProxyManager(proxy_urls, rotate=proxy_rotate)
 
@@ -120,7 +119,7 @@ class CloudRipCLI:
             cf = len(self.scanner.report.cloudflare)
             self._pbar.set_postfix_str(f"found:{found} cf:{cf}")
 
-    def handle_interrupt(self, signum: int, frame) -> None:
+    def handle_interrupt(self, signum: int, frame: object) -> None:
         """Handle Ctrl+C gracefully."""
         if self.scanner.stop_requested:
             tqdm.write(f"{Colors.RED}\n[INFO] Force quitting...")

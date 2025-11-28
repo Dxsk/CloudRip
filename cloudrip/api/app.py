@@ -58,7 +58,7 @@ app.include_router(router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Root"])
-async def root():
+async def root() -> dict[str, str]:
     """Root endpoint with API information."""
     return {
         "name": "CloudRip API",
@@ -73,7 +73,7 @@ def run_server(
     port: int | None = None,
     reload: bool | None = None,
     workers: int | None = None,
-):
+) -> None:
     """Run the API server.
 
     Args:

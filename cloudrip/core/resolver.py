@@ -1,7 +1,5 @@
 """DNS resolution utilities."""
 
-from typing import Optional
-
 import dns.resolver
 
 from .cloudflare import CloudflareIPRanges
@@ -15,7 +13,7 @@ class DNSResolver:
     def __init__(
         self,
         cf_ranges: CloudflareIPRanges | None = None,
-        proxy_manager: Optional[ProxyManager] = None,
+        proxy_manager: ProxyManager | None = None,
     ):
         self.cf_ranges = cf_ranges or CloudflareIPRanges()
         self.proxy_manager = proxy_manager
@@ -48,11 +46,13 @@ class DNSResolver:
         """Resolve DNS via SOCKS proxy using TCP."""
         import struct
 
-        ips = []
+        ips: list[str] = []
         sock = None
 
+        if self.proxy_manager is None:
+            return ips
+
         try:
-            # Create SOCKS-wrapped socket
             sock = self.proxy_manager.create_socket()
             sock.settimeout(5.0)
 
@@ -91,8 +91,8 @@ class DNSResolver:
 
     def _build_dns_query(self, domain: str, record_type: str) -> bytes:
         """Build a DNS query packet."""
-        import struct
         import random
+        import struct
 
         transaction_id = random.randint(0, 65535)
         flags = 0x0100  # standard query + recursion
@@ -114,10 +114,10 @@ class DNSResolver:
 
     def _parse_dns_response(self, response: bytes, record_type: str) -> list[str]:
         """Parse DNS response and extract IPs."""
-        import struct
         import socket
+        import struct
 
-        ips = []
+        ips: list[str] = []
         if len(response) < 12:
             return ips
 

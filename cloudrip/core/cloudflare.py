@@ -94,14 +94,14 @@ class CloudflareIPRanges:
             self.load()
 
         try:
-            ip_addr = IPv4Address(ip)
-            return any(ip_addr in network for network in self._networks_v4)
+            v4_addr = IPv4Address(ip)
+            return any(v4_addr in network for network in self._networks_v4)
         except AddressValueError:
             pass
 
         try:
-            ip_addr = IPv6Address(ip)
-            return any(ip_addr in network for network in self._networks_v6)
+            v6_addr = IPv6Address(ip)
+            return any(v6_addr in network for network in self._networks_v6)
         except AddressValueError:
             pass
 

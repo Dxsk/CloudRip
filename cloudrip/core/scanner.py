@@ -1,9 +1,9 @@
 """CloudRip scanner - core scanning logic."""
 
 import time
+from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Callable, Optional
 
 from .cloudflare import CloudflareIPRanges
 from .models import ResolveResult, ScanReport
@@ -19,7 +19,7 @@ class CloudRipScanner:
         domain: str,
         threads: int = 10,
         rate_limit: float = 0.05,
-        proxy_manager: Optional[ProxyManager] = None,
+        proxy_manager: ProxyManager | None = None,
     ):
         self.domain = domain
         self.threads = threads
@@ -31,13 +31,13 @@ class CloudRipScanner:
         self.report = ScanReport(target_domain=domain)
         self.stop_requested = False
 
-        self._on_result: Optional[Callable[[ResolveResult], None]] = None
-        self._on_progress: Optional[Callable[[int, int], None]] = None
+        self._on_result: Callable[[ResolveResult], None] | None = None
+        self._on_progress: Callable[[int, int], None] | None = None
 
     def set_callbacks(
         self,
-        on_result: Optional[Callable[[ResolveResult], None]] = None,
-        on_progress: Optional[Callable[[int, int], None]] = None,
+        on_result: Callable[[ResolveResult], None] | None = None,
+        on_progress: Callable[[int, int], None] | None = None,
     ) -> None:
         """Set callbacks for progress reporting.
 
@@ -60,7 +60,7 @@ class CloudRipScanner:
         if not path.exists():
             raise FileNotFoundError(f"Wordlist not found: {path}")
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 stripped = line.strip()
                 if stripped and not stripped.startswith("#"):
@@ -68,7 +68,7 @@ class CloudRipScanner:
 
         return subdomains
 
-    def load_wordlists(self, paths: list[str | Path]) -> list[str]:
+    def load_wordlists(self, paths: Sequence[str | Path]) -> list[str]:
         """Load and merge multiple wordlists."""
         subdomains: set[str] = set()
 
@@ -80,7 +80,7 @@ class CloudRipScanner:
 
         return sorted(subdomains)
 
-    def resolve_subdomain(self, subdomain: Optional[str] = None) -> ResolveResult:
+    def resolve_subdomain(self, subdomain: str | None = None) -> ResolveResult:
         """Resolve a subdomain (or root domain if None)."""
         if subdomain:
             return self.resolver.resolve_domain(subdomain, self.domain)
@@ -156,7 +156,7 @@ class CloudRipScanner:
 
     def scan_from_wordlists(
         self,
-        wordlist_paths: list[str | Path],
+        wordlist_paths: Sequence[str | Path],
         include_root: bool = True,
     ) -> ScanReport:
         """Load wordlists and execute scan.
