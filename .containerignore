@@ -1,0 +1,76 @@
+# Git
+.git/
+.gitignore
+
+# Container build files
+Containerfile
+Dockerfile
+.containerignore
+.dockerignore
+compose.yml
+docker-compose.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Testing
+tests/
+pytest.ini
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Linting
+.mypy_cache/
+.ruff_cache/
+.flake8
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development
+requirements/dev.txt
+Makefile
+
+# AI assistants
+.claude/
+.cursor/
+.aider/
+.continue/
+.codeium/
+
+# OS
+.DS_Store
+Thumbs.db
