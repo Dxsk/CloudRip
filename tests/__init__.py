@@ -1,0 +1,1 @@
+"""CloudRip test suite."""

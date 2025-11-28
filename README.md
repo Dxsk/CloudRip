@@ -1,182 +1,189 @@
 # CloudRip
 
-A tool that helps you find the real IP addresses hiding behind Cloudflare by checking subdomains. For penetration testing, security research, and learning how Cloudflare protection works.
+![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.0-green.svg)
+![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen.svg)
+![Container](https://img.shields.io/badge/container-OCI-blueviolet.svg)
+![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-## What it does
+Find real IP addresses behind Cloudflare by scanning subdomains. Built for penetration testing, security research, and understanding Cloudflare protection.
 
-- **IPv4 & IPv6 support** - Resolves both A and AAAA records
-- **Multiple IPs detection** - Finds ALL IPs behind a domain, not just the first one
-- **Progress bar** - Real-time progress with live stats (found/cloudflare count)
-- **Dynamic Cloudflare IP detection** - Fetches latest IP ranges from Cloudflare's API (with fallback)
-- **Fast subdomain scanning** - Uses multiple threads to speed things up
-- **Multiple wordlists** - Combine several wordlists in a single scan
-- **Wordlist comments** - Use `#` to add comments in your wordlists
-- **Multiple output formats** - Export to JSON, YAML, CSV, or plain text
-- **Verbose & quiet modes** - Control output verbosity
-- **Filters out Cloudflare IPs** - Only shows you the real server addresses
-- **Bring your own wordlist** - Or use the built-in one (dom.txt)
-- **Save your findings** - Export results to a file for later
-- **Rate limiting** - Won't spam the target and get you blocked
-- **Solid default wordlist** - Organized and comprehensive for better results
+---
 
-## Getting it running
+## Features
 
-You'll need Python 3. Create a virtual environment and install dependencies:
+| Feature | Description |
+|---------|-------------|
+| **IPv4 & IPv6** | Resolves both A and AAAA records |
+| **Multiple IPs** | Finds ALL IPs behind a domain |
+| **Dynamic CF Detection** | Fetches latest IP ranges from Cloudflare's API |
+| **Multiple Formats** | JSON, YAML, CSV, plain text output |
+| **Multi-threaded** | Fast concurrent subdomain resolution |
+| **SOCKS Proxy** | Route DNS through SOCKS4/5 (Tor compatible) |
+| **REST API** | FastAPI server with async scanning |
+| **Container Ready** | OCI-compliant image for Podman/Docker |
+
+---
+
+## Quick Start
+
+### Installation
+
+<details>
+<summary><strong>Python</strong></summary>
 
 ```bash
+git clone https://github.com/Dxsk/CloudRip.git
+cd CloudRip
+
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements/base.txt
+
+# For API mode
+pip install -r requirements/api.txt
+
+# For development
+pip install -r requirements/dev.txt
 ```
 
-## How to use it
+</details>
 
-Basic usage:
+<details>
+<summary><strong>Container (Podman/Docker)</strong></summary>
+
 ```bash
+# Build
+podman build -t cloudrip .
+
+# Run API
+podman run -d -p 8000:8000 --name cloudrip cloudrip
+
+# With custom config
+podman run -d -p 8080:8080 \
+  -e CLOUDRIP_PORT=8080 \
+  -e CLOUDRIP_WORKERS=4 \
+  cloudrip
+```
+
+</details>
+
+### Usage Examples
+
+<details>
+<summary><strong>CLI</strong></summary>
+
+```bash
+# Basic scan
 python3 cloudrip.py example.com
+
+# With options
+python3 cloudrip.py example.com -t 20 -o report.json -f json
+
+# With proxy (Tor)
+python3 cloudrip.py example.com -p socks5://127.0.0.1:9050
 ```
 
-With all the options:
+</details>
+
+<details>
+<summary><strong>Python Library</strong></summary>
+
+```python
+from cloudrip import CloudRipScanner
+
+scanner = CloudRipScanner("example.com")
+scanner.load_cf_ranges()
+report = scanner.scan_from_wordlists(["dom.txt"])
+
+for result in report.found:
+    print(f"{result.domain}: {result.ipv4_non_cf}")
+```
+
+</details>
+
+<details>
+<summary><strong>REST API</strong></summary>
+
 ```bash
-python3 cloudrip.py example.com -w wordlist1.txt -w wordlist2.txt -t 20 -o report.json -f json
+# Start server
+uvicorn cloudrip.api:app --port 8000
+
+# Quick check
+curl -X POST localhost:8000/api/v1/check \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "mail.example.com"}'
+
+# Start scan
+curl -X POST localhost:8000/api/v1/scan \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "example.com", "threads": 20}'
 ```
 
-**Options:**
+</details>
 
-| Option | Description |
-|--------|-------------|
-| `<domain>` | The site you're testing (like example.com) |
-| `-w, --wordlist` | Wordlist file(s). Can be specified multiple times (default: dom.txt) |
-| `-t, --threads` | How many threads to run (default: 10) |
-| `-o, --output` | Save results to a file |
-| `-f, --format` | Output format: `normal`, `json`, `yaml`, `csv` (default: normal) |
-| `-v, --verbose` | Show all results including "not found" entries |
-| `-q, --quiet` | Minimal output - only show found IPs |
+---
 
-## Examples
+## Documentation
 
-**Basic scan:**
-```bash
-python3 cloudrip.py example.com
+| Mode | Description | Link |
+|------|-------------|------|
+| **CLI** | Command-line scanner | [docs/cli.md](docs/cli.md) |
+| **Library** | Python integration | [docs/library.md](docs/library.md) |
+| **API** | REST API server | [docs/api.md](docs/api.md) |
+| **Container** | Podman/Docker deployment | [docs/container.md](docs/container.md) |
+
+---
+
+## Project Structure
+
+<details>
+<summary><strong>Show structure</strong></summary>
+
+```
+cloudrip/
+├── core/           # Core scanning logic
+│   ├── scanner.py      # CloudRipScanner class
+│   ├── resolver.py     # DNS resolution
+│   ├── cloudflare.py   # Cloudflare IP detection
+│   ├── proxy.py        # SOCKS proxy support
+│   └── models.py       # Data models
+├── output/         # Report generation
+│   └── writers.py      # JSON, YAML, CSV, text output
+├── cli/            # Command-line interface
+│   └── main.py         # CLI entry point
+├── api/            # REST API (FastAPI)
+│   ├── app.py          # FastAPI application
+│   ├── routes.py       # API endpoints
+│   ├── schemas.py      # Pydantic models
+│   └── settings.py     # Configuration
+└── utils/          # Utilities
+    └── colors.py       # Terminal colors
 ```
 
-**Multiple wordlists with JSON output:**
-```bash
-python3 cloudrip.py example.com -w subs1.txt -w subs2.txt -o report.json -f json
-```
+</details>
 
-**Fast scan with 50 threads:**
-```bash
-python3 cloudrip.py example.com -t 50 -o results.csv -f csv
-```
-
-**Verbose mode (see all attempts):**
-```bash
-python3 cloudrip.py example.com -v
-```
-
-**Quiet mode (only found IPs):**
-```bash
-python3 cloudrip.py example.com -q -o found.txt
-```
-
-## Output Formats
-
-### Normal (default)
-```
-CloudRip Scan Report
-============================================================
-Target: example.com
-Date: 2025-11-28T12:00:00+00:00
-Total checked: 150
-
-[FOUND] Non-Cloudflare IPs (3):
-  mail.example.com
-    v4:[192.168.1.1, 192.168.1.2, 192.168.1.3]
-  ftp.example.com
-    v4:[10.0.0.1] | v6:[2001:db8::1]
-
-[CLOUDFLARE] Behind Cloudflare (5):
-  www.example.com
-    v4:[104.16.1.1 [CF], 172.67.1.1 [CF]] | v6:[2606:4700::1 [CF]]
-```
-
-### JSON
-```json
-{
-  "target_domain": "example.com",
-  "scan_date": "2025-11-28T12:00:00+00:00",
-  "total_checked": 150,
-  "summary": {
-    "found": 3,
-    "cloudflare": 5,
-    "not_found": 142,
-    "errors": 0
-  },
-  "results": { ... }
-}
-```
-
-### CSV
-```csv
-domain,ipv4,ipv4_cloudflare,ipv6,ipv6_cloudflare,status,error
-mail.example.com,192.168.1.1;192.168.1.2;192.168.1.3,,,,found,
-www.example.com,104.16.1.1;172.67.1.1,104.16.1.1;172.67.1.1,2606:4700::1,2606:4700::1,cloudflare,
-```
-
-## Version History
-
-### v2.1.0 (Current)
-**New Features:**
-- Full IPv6 support (AAAA record resolution)
-- Multiple IPs detection - Resolves ALL IPs behind a domain (A/AAAA records can return multiple IPs)
-- Dynamic Cloudflare IP range fetching from official API
-- Multiple output formats: JSON, YAML, CSV, normal text
-- Multiple wordlists support (combine with `-w file1.txt -w file2.txt`)
-- Verbose mode (`-v`) to see all results including not found
-- Quiet mode (`-q`) for minimal output
-- Automatic root domain checking before subdomain scan
-- Comprehensive scan summary with statistics
-- Structured report with categorized results (found, cloudflare, not_found, errors)
-
-**Technical Improvements:**
-- Complete rewrite with object-oriented architecture
-- Type hints throughout the codebase
-- Dataclasses for structured data handling
-- Better error handling (LifetimeTimeout, EOFError)
-- Cleaner executor shutdown on interrupt
-- Reduced rate limiting delay (0.1s → 0.05s)
-
-**Wordlist Improvements:**
-- Massive wordlist upgrade - Took dom.txt from 100 to 600+ subdomains
-- Added API variants, cloud infrastructure, IoT endpoints
-- Covers auth/security, payment gateways, analytics, CI/CD pipelines
-- Way better geo coverage - cities and more countries
-- Handles modern cloud-native and microservices setups
-- Better database and service discovery hits
-
-### v1.5.0
-- Rate limiting so you don't get blocked
-- Thread handling works better now
-- Doesn't crash on DNS failures anymore
-- Prettier output with colors
-
-### v1.0.0
-- First drop with the core stuff
-- Multi-threaded subdomain scanning
-- Filters out Cloudflare IPs
-- Bring your own wordlist
-- Save results to file
-- Basic dom.txt with ~100 entries
+---
 
 ## Contributing
 
-Got ideas for improvements? Found a bug? Pull requests and issues are welcome! If it's better wordlists, new features, or bug fixes - all contributions help.
+Pull requests welcome. See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-## Important Legal Stuff
+---
 
-**Only use CloudRip on systems you have permission to test.** This tool is for ethical security research, penetration testing with authorization, and educational purposes. Using it against websites without permission is illegal and not cool. You're responsible for how you use this tool.
+## Legal
+
+**Only use on systems you have permission to test.** For ethical security research and authorized penetration testing only.
+
+---
 
 ## License
 
-MIT License - use responsibly.
+MIT
+
+---
+
+## Authors
+
+- **moscovium-mc** - Original creator - [GitHub](https://github.com/moscovium-mc)
+- **Dxsk** - [GitHub](https://github.com/Dxsk)

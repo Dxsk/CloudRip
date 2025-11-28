@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-11-28
+
+### Added
+
+#### Modular Architecture
+- Reorganized into `cloudrip/` package with submodules: `core/`, `output/`, `cli/`, `api/`, `utils/`
+- Added Library mode - Use CloudRip as a Python package (`from cloudrip import CloudRipScanner`)
+- Clean separation of concerns: core scanning logic, output formatting, CLI, and API
+
+#### REST API (FastAPI)
+- Added FastAPI-based REST API server with async scanning support
+- `/api/v1/health` - Health check with Cloudflare ranges and proxy status
+- `/api/v1/check` - Quick synchronous single domain check
+- `/api/v1/check/batch` - Batch check multiple domains (up to 100)
+- `/api/v1/scan` - Start async subdomain scan job
+- `/api/v1/scan/{job_id}` - Get scan status and results
+- `/api/v1/scans` - List all scan jobs with filtering
+- Added Swagger UI (`/docs`) and ReDoc (`/redoc`) documentation
+- Configuration via environment variables or `.env` file
+
+#### Remote Wordlist Support (API)
+- API can download wordlists from remote URLs (`wordlist_urls` parameter)
+- Temporary files cleaned up automatically after scan
+- Configurable size limits (default 10MB per file)
+- Configurable URL count limits (default 5 URLs per scan)
+- SSRF protection: blocks private/local IPs (localhost, 127.x, 10.x, 192.168.x, etc.)
+
+#### SOCKS Proxy Support
+- Added SOCKS4/5 proxy support for DNS queries
+- DNS-over-TCP tunneled through SOCKS proxies for anonymity
+- CLI: `-p/--proxy` flag for proxy URLs (can be specified multiple times)
+- CLI: `--no-rotate` flag to disable proxy rotation
+- API: `CLOUDRIP_PROXIES` environment variable (comma-separated)
+- API: `CLOUDRIP_PROXY_ROTATE` environment variable
+- API: `use_proxy` request parameter (null=auto, true=force, false=disable)
+- Proxy rotation support for load balancing across multiple proxies
+- Authentication support (`socks5://user:pass@host:port`)
+
+#### Container Support
+- Added OCI-compliant `Containerfile` for Podman/Docker
+- Multi-stage build with Python 3.12 Alpine base
+- Security-hardened: rootless, non-root user, minimal image
+- Health check endpoint integration
+- Configurable via environment variables
+- Added `docs/container.md` with deployment guide
+- Compose examples with Tor proxy integration
+
+#### Testing
+- Added comprehensive test suite with 208 unit tests (86% coverage)
+- Added pytest configuration with pytest-cov for coverage reporting
+- Added proxy module tests (100% coverage on proxy module)
+- Added linting with black and flake8
+
+#### Documentation
+- Added `docs/cli.md` - CLI usage and examples
+- Added `docs/library.md` - Python library integration
+- Added `docs/api.md` - REST API documentation
+- Added `docs/container.md` - Container deployment guide
+- Added `.env.example` with all configuration options
+
+---
+
 ## [2.1.0] - 2025-11-28
 
 ### Added
